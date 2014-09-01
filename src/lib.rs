@@ -95,15 +95,15 @@ impl<R: Reader> BitReader<R> {
     fn expand_buffer(&mut self, b_count: int) {
         assert!(b_count > 0 && b_count < 32)
 
-        let mut bitsToRead: int = b_count - self.buf_len();
-        while bitsToRead > 0 {
+        let mut bits_to_read: int = b_count - self.buf_len();
+        while bits_to_read > 0 {
             // self.buf is smaller than the requested bits => read bytes from source into buf
             match self.src.read_byte() {
                 Ok(byte) => {
                     self.buf |= byte as int << self.end;
                     self.end += 8;
-                    bitsToRead -= 8;
-                    debug!("Expanded buffer! {} bits remaining", bitsToRead)
+                    bits_to_read -= 8;
+                    debug!("Expanded buffer! {} bits remaining", bits_to_read)
                 }
                 _        => fail!("Error! Unexpected EOF!")
             }
