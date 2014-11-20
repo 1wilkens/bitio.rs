@@ -1,6 +1,8 @@
 #![crate_name = "bitio"]
 #![crate_type = "lib"]
-#![comment = "Buffered bitwise IO for rust"]
+#![license = "MIT"]
+
+#![comment = "Basic bitwise IO for Rust."]
 
 #![feature(phase)]
 
@@ -105,7 +107,7 @@ impl<R: Reader> BitReader<R> {
                     bits_to_read -= 8;
                     debug!("Expanded buffer! {} bits remaining", bits_to_read)
                 }
-                _        => fail!("Error! Unexpected EOF!")
+                _        => panic!("Error! Unexpected EOF!")
             }
         }
     }
@@ -124,9 +126,4 @@ struct BitWriter<W> {
     targ: 	W,
     start:	u64,
     end:	u64
-}
-
-
-#[test]
-fn sample_test_function() {
 }
