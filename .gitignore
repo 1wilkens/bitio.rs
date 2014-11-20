@@ -1,1 +1,5 @@
+# ignore build results
 /target
+
+# ignore Cargo.lock since bitio is a library
+Cargo.lock
