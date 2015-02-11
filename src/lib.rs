@@ -1,27 +1,25 @@
 #![crate_name = "bitio"]
 #![crate_type = "lib"]
-#![license = "MIT"]
 
-#![comment = "Basic bitwise IO for Rust."]
+#![feature(io)]
 
-#![feature(phase)]
+#[macro_use]
+extern crate log;
 
-#[phase(plugin, link)] extern crate log;
-
-use std::io;
+use std::old_io;
 
 /// Mainstructs are
-/// * BitReader<R: io::Reader> for reading and
-/// * BitWriter<W: io::Writer> for writing
+/// * BitReader<R: old_io::Reader> for reading and
+/// * BitWriter<W: old_io::Writer> for writing
 
 /// A wrapping Reader reading bitwise from its source.
 /// For now mainly a reimplementation of the C# version from
 /// -- http://rosettacode.org/wiki/Bitwise_IO
 pub struct BitReader<R> {
-    buf:    int,
+    buf:    isize,
     src:    R,
-    start:  uint,
-    end:    uint
+    start:  usize,
+    end:    usize
 }
 
 impl<R: Reader> BitReader<R> {
@@ -37,15 +35,15 @@ impl<R: Reader> BitReader<R> {
     }
 
     /// Reads a single Bit from the `BitReader`
-    pub fn read_bit(&mut self) -> io::IoResult<bool> {
+    pub fn read_bit(&mut self) -> old_io::IoResult<bool> {
         let bit = try!(self.read_bits(1));
         Ok(bit > 0)
     }
 
     /// Gets a given count of Bits from the `BitReader`
-    pub fn read_bits(&mut self, bit_count: uint) -> io::IoResult<int> {
-        assert!(bit_count < 32)
-        self.expand_buffer(bit_count as int);
+    pub fn read_bits(&mut self, bit_count: usize) -> old_io::IoResult<isize> {
+        assert!(bit_count < 32);
+        self.expand_buffer(bit_count as isize);
 
         // might not need all parentheses
         let result = (self.buf >> self.start) & ((1 << bit_count) - 1);
@@ -67,42 +65,42 @@ impl<R: Reader> BitReader<R> {
     }
 
     /// Read a single byte from the `BitReader`
-    pub fn read_byte(&mut self) -> io::IoResult<u8> {
+    pub fn read_byte(&mut self) -> old_io::IoResult<u8> {
         match self.read_bits(8) {
             Ok(byte) => Ok(byte as u8),
-            _		 => Err(io::standard_error(io::EndOfFile))
+            _		 => Err(old_io::standard_error(old_io::EndOfFile))
         }
     }
 
     /// Gets a given count of bytes from the `BitReader`.
     /// Mainly here for convenience. Could be implemented more efficient.
-    pub fn read_bytes(&mut self, buf: &mut [u8], byte_count: uint) -> io::IoResult<uint> {
-        assert!(byte_count <= buf.len())
+    pub fn read_bytes(&mut self, buf: &mut [u8], byte_count: usize) -> old_io::IoResult<usize> {
+        assert!(byte_count <= buf.len());
 
-        let mut count = 0u;
+        let mut count = 0us;
         while count < byte_count {
             match self.read_byte() {
                 Ok(byte) => buf[count] = byte,
-                _        => return Err(io::standard_error(io::EndOfFile))
+                _        => return Err(old_io::standard_error(old_io::EndOfFile))
             }
             count += 1;
         }
         Ok(count)
     }
 
-    fn buf_len(&self) -> int {
-        (self.end - self.start) as int
+    fn buf_len(&self) -> isize {
+        (self.end - self.start) as isize
     }
 
-    fn expand_buffer(&mut self, b_count: int) {
-        assert!(b_count > 0 && b_count < 32)
+    fn expand_buffer(&mut self, b_count: isize) {
+        assert!(b_count > 0 && b_count < 32);
 
-        let mut bits_to_read: int = b_count - self.buf_len();
+        let mut bits_to_read: isize = b_count - self.buf_len();
         while bits_to_read > 0 {
-            // self.buf is smaller than the requested bits => read bytes from source into buf
+            // self.buf is smaller than the requested bits => read bytes from source isizeo buf
             match self.src.read_byte() {
                 Ok(byte) => {
-                    self.buf |= byte as int << self.end;
+                    self.buf |= (byte as isize) << self.end;
                     self.end += 8;
                     bits_to_read -= 8;
                     debug!("Expanded buffer! {} bits remaining", bits_to_read)
@@ -113,8 +111,8 @@ impl<R: Reader> BitReader<R> {
     }
 }
 
-impl<R: io::Reader> io::Reader for BitReader<R> {
-    fn read(&mut self, buf: &mut [u8]) -> io::IoResult<uint> {
+impl<R: old_io::Reader> old_io::Reader for BitReader<R> {
+    fn read(&mut self, buf: &mut [u8]) -> old_io::IoResult<usize> {
         let len = buf.len();
         self.read_bytes(buf, len)
     }
