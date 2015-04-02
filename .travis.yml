@@ -1,6 +1,15 @@
 language: rust
-
+after_success: |
+  [ $TRAVIS_BRANCH = master ] &&
+  [ $TRAVIS_PULL_REQUEST = false ] &&
+  cargo doc &&
+  echo "<meta http-equiv=refresh content=0;url=`echo $TRAVIS_REPO_SLUG | cut -d '/' -f 2`/index.html>" > target/doc/index.html &&
+  sudo pip install ghp-import &&
+  ghp-import -n target/doc &&
+  git push -fq https://${GH_TOKEN}@github.com/${TRAVIS_REPO_SLUG}.git gh-pages
+env:
+  global:
+    secure: LEGtH11JhMASQKNDvrjEXgkrVrMDwa+Hqvxcz99Ub8G1NXZ+/HMaSNUfP1NolqW9qoXyPYk0bId30B7B6yqhTpR7LFYhI7aRoEk63fDNxLLSWm7gBNqZVC9SJ6cVNPrg7FtIExnBRiiPXR8sJpNG4DbeaASPAd0xEJOO85VzZHY=
 notifications:
-    email:
-        on_success: never
-        on_fail:    change
+  email:
+    on_success: never

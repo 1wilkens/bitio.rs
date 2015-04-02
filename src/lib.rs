@@ -1,10 +1,4 @@
-#![crate_name = "bitio"]
-#![crate_type = "lib"]
-
-#![feature(io)]
-
-#[macro_use]
-extern crate log;
+#[macro_use] extern crate log;
 
 use std::io::{Error, ErrorKind, Read, Result};
 
@@ -68,7 +62,7 @@ impl<R: Read> BitReader<R> {
     pub fn read_byte(&mut self) -> Result<u8> {
         match self.read_bits(8) {
             Ok(byte) => Ok(byte as u8),
-            _		 => Err(Error::new(ErrorKind::Other, "Reached EOF", None))
+            _		 => Err(Error::new(ErrorKind::Other, "Reached EOF"))
         }
     }
 
@@ -81,7 +75,7 @@ impl<R: Read> BitReader<R> {
         while count < byte_count {
             match self.read_byte() {
                 Ok(byte) => buf[count] = byte,
-                _        => return Err(Error::new(ErrorKind::Other, "Reached EOF", None))
+                _        => return Err(Error::new(ErrorKind::Other, "Reached EOF"))
             }
             count += 1;
         }
