@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["BitReader","Mainstructs are * BitReader<R: Reader> for reading and * BitWriter<W: Writer> for writing A wrapping Reader reading bitwise from its source. For now mainly a reimplementation of the C# version from -- http://rosettacode.org/wiki/Bitwise_IO"]]});
